@@ -1,0 +1,271 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Web;
+
+/// <summary>
+/// Summary description for LicFile
+/// </summary>
+public class LicFile
+{
+    public enum eFileMode
+    {
+        SavFile,
+        KeyFile,
+        DatFile
+    }
+
+    public enum eOpenMode
+    {
+        ReadOnlyMode,
+        ReadWriteMode
+    }
+
+    private string mClientName;
+    private string mSiteName;
+    private bool mModified;
+    private bool mSaved;
+    private string mFileName;
+    private int mLifeDuration;
+    private string mMachineName;
+    private bool mUseUNCName;
+    private const string csUseUNCNameString = "UseUNCNameString";
+    private const string csDontUseUNCNameString = "DontUseUNCNameString";
+    private eFileMode mFileMode;
+    private eOpenMode mOpenMode;
+
+    // pour les reprises sur echec de l'ouverture du fichier
+    private const short BaseWait = 500;
+    private const short MaxRetries = 10;
+
+    private int mWaitTime;
+    private int mRetriesCount;
+    //Private mErrObj As New CErrors
+
+    // Pour l'acquisition du VolumeID
+    private string mLastFileName;
+    private string mVolumeID;
+    private bool mLocalDrive;
+
+    //private LicenceServer mLicenceServerParent;
+
+    private List<Licence> mLicences = new List<Licence>();
+
+	public LicFile()
+	{ 
+	}
+
+    //public bool Save(string strFileName, eFileMode SaveMode = eFileMode.SavFile)
+    //{
+    //    bool success = false;
+    //    XmlDocument xmlFile = new XmlDocument();
+    //    XmlNode ptrRootNode;
+    //    XmlNode ptrClientNode;
+    //    XmlNode ptrInfoNode;
+
+    //    bool bExist = false;
+
+    //    if (string.IsNullOrEmpty(strFileName))
+    //        throw new Exception(LicenceServer.eErrorCodes.errMissingParameter + "strFileName");
+    //    if (CanSave == false)
+    //        throw new Exception(LicenceServer.eErrorCodes.errCantSave.ToString());
+    //    if (SaveMode < FileMode)
+    //        throw new Exception(LicenceServer.eErrorCodes.errCantSave.ToString());
+    //    if (SaveMode != eFileMode.SavFile & CanBuild == false)
+    //        throw new Exception(LicenceServer.eErrorCodes.errCantBuid.ToString());
+
+    //    if (UseUNCName == true)
+    //    {
+    //        if (MAPIUtilities.GetUncFullPathFromMappedDrive(strFileName).ToUpper() != mFileName)
+    //            mFileName = MAPIUtilities.GetUncFullPathFromMappedDrive(strFileName).ToUpper();
+    //    }
+    //    else
+    //    {
+    //        if (strFileName.ToUpper() != mFileName)
+    //            mFileName = strFileName.ToUpper();
+    //    }
+
+    //    // permet d'obtenir la date de création
+    //    bExist = true;
+    //    bExist = File.Exists(mFileName);
+
+    //    try
+    //    {
+    //        mFileMode = SaveMode;
+
+    //        ptrRootNode = xmlFile.CreateElement(EncrypteXMLTag(MDeclares.TagLicences));
+
+    //        xmlFile.AppendChild(ptrRootNode);
+
+    //        if (bExist == false)
+    //            xmlFile.Save(mFileName);
+
+    //        if (FileMode != eFileMode.DatFile)
+    //        {
+    //            ptrClientNode = xmlFile.CreateElement(EncrypteXMLTag(MDeclares.InfosClient));
+    //            ptrRootNode.AppendChild(ptrClientNode);
+
+    //            // nom du client
+    //            ptrInfoNode = xmlFile.CreateElement(EncrypteXMLTag(MDeclares.TagNomClient));
+    //            ptrInfoNode.InnerText = Encrypte(ClientName);
+    //            ptrClientNode.AppendChild(ptrInfoNode);
+
+    //            // nom du site
+    //            ptrInfoNode = xmlFile.CreateElement(EncrypteXMLTag(MDeclares.TagNomSite));
+    //            ptrInfoNode.InnerText = Encrypte(SiteName);
+    //            ptrClientNode.AppendChild(ptrInfoNode);
+
+    //            // duree de vie du .key
+    //            ptrInfoNode = xmlFile.CreateElement(EncrypteXMLTag(MDeclares.TagLifeDuration));
+    //            if (FileMode == eFileMode.KeyFile)
+    //            {
+    //                ptrInfoNode.InnerText = Encrypte(DateTime.Today.AddDays(LifeDuration).ToString());
+    //            }
+    //            else
+    //            {
+    //                ptrInfoNode.InnerText = Encrypte(LifeDuration.ToString());
+    //            }
+    //            ptrClientNode.AppendChild(ptrInfoNode);
+
+    //            // nom du PC d'installation
+    //            ptrInfoNode = xmlFile.CreateElement(EncrypteXMLTag(MDeclares.TagMachineName));
+    //            ptrInfoNode.InnerText = Encrypte(MachineName);
+    //            ptrClientNode.AppendChild(ptrInfoNode);
+    //        }
+
+    //        // PHM 04-07-2006 : Utilisation du path UNC
+    //        if (UseUNCName == false)
+    //        {
+    //            ptrInfoNode = xmlFile.CreateElement(EncrypteXMLTag(MDeclares.TagUseUNCName));
+    //            ptrInfoNode.InnerText = EncrypteXMLTag((UseUNCName ? csUseUNCNameString : csDontUseUNCNameString));
+    //            ptrRootNode.AppendChild(ptrInfoNode);
+    //        }
+    //        // PHM 04-07-2006 : Utilisation du path UNC
+
+    //        // PHM 01-02-2010 : VolumeID
+    //        bool bLocal = false;
+    //        if (UseUNCName == true & FileMode == eFileMode.DatFile)
+    //        {
+    //            ptrInfoNode = xmlFile.CreateElement(EncrypteXMLTag(MDeclares.TagVolumeID));
+    //            if (string.IsNullOrEmpty(mVolumeID) | mFileName != mLastFileName)
+    //            {
+    //                //UPGRADE_WARNING: Couldn't resolve default property of object GetVolumeID(). Click for more: 'ms-help://MS.VSCC.v90/dv_commoner/local/redirect.htm?keyword="6A50421D-15FE-4896-8A1B-2EC21E9037B2"'
+    //                mVolumeID = MACAdrUtilities.GetVolumeID(mFileName, bLocal);
+    //                mLocalDrive = bLocal;
+    //                mLastFileName = mFileName;
+    //            }
+    //            ptrInfoNode.InnerText = EncrypteXMLTag(mVolumeID);
+    //            ptrRootNode.AppendChild(ptrInfoNode);
+    //        }
+    //        // PHM 01-02-2010 : VolumeID
+
+    //        foreach (Licence ptrLicence in mLicences)
+    //        {
+    //            if (ptrLicence.Save(ref xmlFile) == false)
+    //                return success;
+    //        }
+
+    //        //if (bExist == false)
+    //        xmlFile.Save(mFileName);
+
+    //        //using (StreamWriter file = new System.IO.StreamWriter(mFileName))
+    //        //{
+    //        //    file.Write(xmlFile.InnerXml);
+    //        //}
+
+    //        success = true;
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        // Get stack trace for the exception with source file information
+    //        var trace = new StackTrace(ex, true);
+
+    //        // Get the top stack frame
+    //        var frame = trace.GetFrame(0);
+
+    //        // Get the line number from the stack frame
+    //        int line = frame.GetFileLineNumber();
+
+    //        ErrorServiceSingleton.Instance.DisplayErrors(ex, line); ;
+    //    }
+
+    //    mModified = false;
+    //    mSaved = true;
+    //    return success;
+    //}
+
+    //public Licence CreateLicence2(string strProgramName, int lLicenceCount, DateTime EndDate, string sPassword)
+    //{
+    //    if ((sPassword == null))
+    //        MMiscUtilities.RaiseUserError(LicenceServer.eErrorCodes.errBadFile, "", "10-1");
+    //    if (string.IsNullOrEmpty(sPassword))
+    //        MMiscUtilities.RaiseUserError(LicenceServer.eErrorCodes.errBadFile, "", "10-2");
+
+    //    clsCrypter cc = new clsCrypter();
+
+    //    if (cc.Decrypte(ref sPassword) != MDeclares.mdp + DateTime.Now.ToString("hh:mm"))
+    //        MMiscUtilities.RaiseUserError(LicenceServer.eErrorCodes.errBadFile, "", "10-3");
+
+    //    if (FileMode != eFileMode.SavFile)
+    //        MMiscUtilities.RaiseUserError(LicenceServer.eErrorCodes.errBadFile, "", "10");
+
+    //    return CreateLicenceFromServer(strProgramName, lLicenceCount, EndDate);
+    //}
+
+
+
+    public string ClientName
+    {
+        get { return mClientName; }
+        set
+        {
+            if (value != mClientName)
+                mModified = true;
+            mClientName = value;
+        }
+    }
+
+    public string SiteName
+    {
+        get { return mSiteName; }
+        set
+        {
+            if (value != mSiteName)
+                mModified = true;
+            mSiteName = value;
+        }
+    }
+
+    public int LifeDuration
+    {
+        get { return mLifeDuration; }
+        set
+        {
+            if (value != mLifeDuration)
+                mModified = true;
+            mLifeDuration = value;
+        }
+    }
+
+    public string MachineName
+    {
+        get { return mMachineName; }
+        set
+        {
+            if (value != mMachineName)
+                mModified = true;
+            mMachineName = value;
+        }
+    }
+
+    public bool UseUNCName
+    {
+        get { return mUseUNCName; }
+        set
+        {
+            if (value != mUseUNCName)
+                mModified = true;
+            mUseUNCName = value;
+        }
+    }
+
+}

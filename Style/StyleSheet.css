@@ -1,0 +1,71 @@
+﻿/* Couleurs :
+
+	LightSteelBlue : #b0c4de
+	Navy           : #000080
+
+*/
+
+body
+{
+	background-color: white;
+	color: Black;
+	cursor: default;
+	margin: 5;
+	font-family: Verdana;
+	font-weight: normal;
+	font-size: 10pt;
+}
+
+.ErrorLabel
+{
+	color: red; /* font-weight: bold; */
+}
+
+.Titre
+{
+	font-size: 16pt;
+	color: #000080;
+}
+
+.SousTitre
+{
+	color: #000080;
+}
+
+.EnteteBoite
+{
+	font-weight: bold;
+	color: white;
+	background-color: #b0c4de;
+}
+
+.CadreBoite
+{
+	border: solid 1px #b0c4de;
+	/* inutile ? color: #333333; */
+	border-collapse: collapse;
+}
+
+UL
+{
+	/* color: #000073; */
+	margin-left: 40px;
+	font-weight: bold; /* text-decoration: underline; */
+}
+
+.Separator
+{
+	color: #b0c4de;
+}
+
+.BoxHorz
+{
+	background-color: #b0c4de;
+	height: 1px
+}
+
+.BoxVert
+{
+	background-color: #b0c4de;
+	width: 1px
+}

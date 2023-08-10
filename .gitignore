@@ -1,0 +1,14 @@
+
+*.dll
+*.exp
+*.lib
+*.pdb
+*.exe
+*.log
+
+!dlls/*.dll
+
+.vs/
+_Mails/
+Bin/
+
