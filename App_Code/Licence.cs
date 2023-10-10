@@ -44,7 +44,7 @@ public class Licence : DataAccess
     m_NomSite = "";
     m_NbLicence = 0;
     m_NbLicenceFacture = 0;
-    m_DateExpiration = DateTime.Parse("31/12/" + DateTime.Now.Year.ToString());
+    m_DateExpiration = DateTime.Parse("12/31/" + DateTime.Now.Year.ToString());
     m_PrixVente = 0.0;
     m_PrixMiseAJour = 0.0;
     m_Repertoire = "";
